@@ -2,27 +2,63 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	lab2 "github.com/Snare295/architecture-lab2"
 )
 
 var (
-	inputExpression = flag.String("e", "", "Expression to compute")
-	// TODO: Add other flags support for input and output configuration.
+	fileOutp  = flag.String("o", "", "Write outpun in file")
+	fileInp   = flag.String("f", "", "Get input from file")
+	stringInp = flag.String("e", "", "Compute this string")
 )
 
 func main() {
 	flag.Parse()
 
-	// TODO: Change this to accept input from the command line arguments as described in the task and
-	//       output the results using the ComputeHandler instance.
-	//       handler := &lab2.ComputeHandler{
-	//           Input: {construct io.Reader according the command line parameters},
-	//           Output: {construct io.Writer according the command line parameters},
-	//       }
-	//       err := handler.Compute()
+	var input io.Reader = nil
+	var output = os.Stdout
 
-	res, _ := lab2.PrefixToPostfix("+ 2 2")
-	fmt.Println(res)
+	if *stringInp != "" {
+		input = strings.NewReader(*stringInp)
+	}
+
+	if *fileInp != "" {
+		f, err := os.Open(*fileInp)
+		if err != nil {
+			os.Stderr.WriteString("Error : Opening file!")
+			return
+		}
+
+		input = f
+		defer f.Close()
+	}
+
+	if *fileOutp != "" {
+		o, err := os.Create(*fileOutp)
+		if err != nil {
+			os.Stderr.WriteString("Error : Saving!")
+			return
+		}
+
+		output = o
+		defer o.Close()
+	}
+
+	if input == nil {
+		os.Stderr.WriteString("Error : Empty input!")
+		return
+	}
+
+	handler := &lab2.ComputeHandler{
+		Input:  input,
+		Output: output,
+	}
+
+	err := handler.Compute()
+	if err != nil {
+		os.Stderr.WriteString(err.Error())
+	}
 }
