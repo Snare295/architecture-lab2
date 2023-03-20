@@ -4,19 +4,39 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "gopkg.in/check.v1"
 )
 
-func TestPrefixToPostfix(t *testing.T) {
-	res, err := PrefixToPostfix("+ 5 * - 4 2 3")
-	if assert.Nil(t, err) {
-		assert.Equal(t, "4 2 - 3 * 5 +", res)
-	}
+func Test(t *testing.T) { TestingT(t) }
+
+type MySuite struct{}
+
+var _ = Suite(&MySuite{})
+
+func (s *MySuite) TestPrefixToPostfix(c *C) {
+	var res string
+	var err error
+
+	res, err = PrefixToPostfix("+ + 2 2 2")
+	c.Assert(res, Equals, "2 2 + 2 +")
+
+	res, err = PrefixToPostfix("/ * - + 10 20 30 ^ 40 ^ 50 60 70")
+	c.Assert(res, Equals, "10 20 + 30 - 40 50 60 ^ ^ * 70 /")
+
+	res, err = PrefixToPostfix("- - 2 - -")
+	c.Assert(err, ErrorMatches, "incorrect expression")
+
+	res, err = PrefixToPostfix("- 2 2 2")
+	c.Assert(err, ErrorMatches, "incorrect expression")
 }
 
 func ExamplePrefixToPostfix() {
-	res, _ := PrefixToPostfix("+ 2 2")
-	fmt.Println(res)
+	res, err := PrefixToPostfix("+ 2 2")
+	if err == nil {
+		fmt.Println(res)
+	} else {
+		panic(err)
+	}
 
 	// Output:
 	// 2 2 +
