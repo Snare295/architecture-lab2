@@ -5,8 +5,7 @@ import (
 	"strings"
 )
 
-// TODO: document this function.
-// PrefixToPostfix converts
+// PrefixToPostfix converts prefix polish notation expression to postfix
 func PrefixToPostfix(input string) (string, error) {
 	const operators = "+-*/^"
 
@@ -15,7 +14,7 @@ func PrefixToPostfix(input string) (string, error) {
 		return "", fmt.Errorf("empty input")
 	}
 
-	//verify first char is operand
+	//verify first char is operator
 	if !strings.Contains(operators, input[0:1]) {
 		return input, nil
 	}
